@@ -1,71 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>GLB Viewer</title>
+  <meta charset="UTF-8">
+  <title>Two Models in One Viewer</title>
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
-    body { margin: 0; overflow: hidden; }
-    canvas { display: block; }
+    body { margin: 0; }
+    model-viewer { width: 100vw; height: 100vh; background-color: #f0f0f0; }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/examples/js/loaders/GLTFLoader.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
-  <script>
-    // Scene setup
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xf0f0f0);
 
-    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.set(0, 1.5, 5);
+<model-viewer 
+  id="viewer"
+  src="planet_x_frame.glb"
+  alt="Planet X + BXT"
+  auto-rotate
+  camera-controls
+  shadow-intensity="1">
+</model-viewer>
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+<script type="module">
+  const viewer = document.getElementById('viewer');
 
-    // Lights
-    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
-    hemiLight.position.set(0, 20, 0);
-    scene.add(hemiLight);
+  viewer.addEventListener('load', async () => {
+    // Import the second model
+    const bxt = await viewer.createModel('bxt_frame.glb');
+    // Move it a little so it doesn’t overlap with Planet X
+    bxt.setMatrix([
+      1, 0, 0, 0,
+      0, 1, 0, 0,
+      0, 0, 1, 0,
+      2, 0, 0, 1  // <-- shift X by 2 units
+    ]);
+  });
+</script>
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-    dirLight.position.set(3, 10, 10);
-    scene.add(dirLight);
-
-    // Controls
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-
-    // Loader
-    const loader = new THREE.GLTFLoader();
-
-    // Load Planet X frame
-    loader.load("planet_x_frame.glb", (gltf) => {
-      gltf.scene.position.x = -1.5; // Move left
-      scene.add(gltf.scene);
-    });
-
-    // Load BXT frame
-    loader.load("bxt_frame.glb", (gltf) => {
-      gltf.scene.position.x = 1.5; // Move right
-      scene.add(gltf.scene);
-    });
-
-    // Render loop
-    function animate() {
-      requestAnimationFrame(animate);
-      controls.update();
-      renderer.render(scene, camera);
-    }
-    animate();
-
-    // Resize handling
-    window.addEventListener("resize", () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-  </script>
 </body>
 </html>
