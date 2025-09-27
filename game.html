@@ -11,6 +11,7 @@
 </head>
 <body>
 
+<!-- Only ONE model-viewer -->
 <model-viewer 
   id="viewer"
   src="planet_x_frame.glb"
@@ -24,14 +25,15 @@
   const viewer = document.getElementById('viewer');
 
   viewer.addEventListener('load', async () => {
-    // Import the second model
+    // Load the second model inside the same viewer
     const bxt = await viewer.createModel('bxt_frame.glb');
-    // Move it a little so it doesn’t overlap with Planet X
+    
+    // Move it a bit so it doesn't overlap
     bxt.setMatrix([
       1, 0, 0, 0,
       0, 1, 0, 0,
       0, 0, 1, 0,
-      2, 0, 0, 1  // <-- shift X by 2 units
+      2, 0, 0, 1  // Shift on X-axis
     ]);
   });
 </script>
