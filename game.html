@@ -2,39 +2,39 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Two Models in One Viewer</title>
+  <title>Multiple GLB Viewer</title>
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
-    body { margin: 0; }
-    model-viewer { width: 100vw; height: 100vh; background-color: #f0f0f0; }
+    body {
+      margin: 0;
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+    model-viewer {
+      flex: 1;
+      height: 100%;
+      background-color: #f0f0f0;
+    }
   </style>
 </head>
 <body>
 
-<model-viewer 
-  id="viewer"
-  src="planet_x_frame.glb"
-  alt="Planet X + BXT"
-  auto-rotate
-  camera-controls
-  shadow-intensity="1">
-</model-viewer>
+  <!-- First model -->
+  <model-viewer 
+    src="planet_x_frame.glb" 
+    alt="Planet X Frame" 
+    auto-rotate 
+    camera-controls>
+  </model-viewer>
 
-<script type="module">
-  const viewer = document.getElementById('viewer');
-
-  viewer.addEventListener('load', async () => {
-    // Import the second model
-    const bxt = await viewer.createModel('bxt_frame.glb');
-    // Move it a little so it doesn’t overlap with Planet X
-    bxt.setMatrix([
-      1, 0, 0, 0,
-      0, 1, 0, 0,
-      0, 0, 1, 0,
-      2, 0, 0, 1  // <-- shift X by 2 units
-    ]);
-  });
-</script>
+  <!-- Second model -->
+  <model-viewer 
+    src="bxt_frame.glb" 
+    alt="BXT Frame" 
+    auto-rotate 
+    camera-controls>
+  </model-viewer>
 
 </body>
 </html>
