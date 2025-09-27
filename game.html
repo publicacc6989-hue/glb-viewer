@@ -22,18 +22,23 @@
 
 <script type="module">
   const viewer = document.getElementById('viewer');
+
   viewer.addEventListener('load', async () => {
     try {
+      // Load BXT
       const bxt = await viewer.createModel('bxt_frame.glb');
+
+      // Move it 2 units to the right so both are visible
       bxt.setMatrix([
         1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1, 0,
         2, 0, 0, 1
       ]);
-      console.log("Loaded BXT model successfully");
+
+      console.log("✅ BXT loaded next to Planet X");
     } catch (err) {
-      console.error("Failed to load BXT:", err);
+      console.error("❌ Failed to load BXT:", err);
     }
   });
 </script>
