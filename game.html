@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Planet X + BXT Viewer</title>
+  <title>GLB Frame Viewer</title>
   <style>
     body { margin: 0; overflow: hidden; }
     canvas { display: block; }
@@ -14,18 +14,15 @@
   import { OrbitControls } from "https://unpkg.com/three@0.152.2/examples/jsm/controls/OrbitControls.js";
   import { GLTFLoader } from "https://unpkg.com/three@0.152.2/examples/jsm/loaders/GLTFLoader.js";
 
-  // Scene setup
+  // Scene
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0xf0f0f0);
 
-  const camera = new THREE.PerspectiveCamera(
-    60,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000
-  );
-  camera.position.set(0, 1.5, 5);
+  // Camera
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.set(0, 1, 5);
 
+  // Renderer
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
@@ -43,24 +40,45 @@
   dirLight.position.set(5, 10, 7.5);
   scene.add(dirLight);
 
-  // Load models
+  // Loader
   const loader = new GLTFLoader();
+
+  function centerAndScaleModel(model, shiftX) {
+    // Compute bounding box
+    const box = new THREE.Box3().setFromObject(model);
+    const size = new THREE.Vector3();
+    box.getSize(size);
+    const center = new THREE.Vector3();
+    box.getCenter(center);
+
+    // Recenter
+    model.position.x += (model.position.x - center.x) + shiftX;
+    model.position.y += (model.position.y - center.y);
+    model.position.z += (model.position.z - center.z);
+
+    // Normalize scale if too large
+    const maxDim = Math.max(size.x, size.y, size.z);
+    if (maxDim > 5) {
+      const scale = 5 / maxDim;
+      model.scale.set(scale, scale, scale);
+    }
+  }
 
   loader.load("planet_x_frame.glb", (gltf) => {
     const model = gltf.scene;
-    model.position.set(-1.5, 0, 0); // move left
+    centerAndScaleModel(model, -1.5);
     scene.add(model);
     console.log("✅ Planet X loaded");
-  });
+  }, undefined, (err) => console.error("❌ Error loading planet_x_frame.glb", err));
 
   loader.load("bxt_frame.glb", (gltf) => {
     const model = gltf.scene;
-    model.position.set(1.5, 0, 0); // move right
+    centerAndScaleModel(model, 1.5);
     scene.add(model);
     console.log("✅ BXT loaded");
-  });
+  }, undefined, (err) => console.error("❌ Error loading bxt_frame.glb", err));
 
-  // Render loop
+  // Animate
   function animate() {
     requestAnimationFrame(animate);
     controls.update();
@@ -68,7 +86,7 @@
   }
   animate();
 
-  // Handle resize
+  // Resize
   window.addEventListener("resize", () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
